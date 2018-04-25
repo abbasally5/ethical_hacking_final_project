@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <style type="text/css">
+	.center-div {
+	    text-align: center;
+	    position: absolute;
+	    top: 25%;
+	    left: 0;
+	    right: 0;
+	    color: #1ec503;
+	}
+
+	.main-form {
+	    display: flex;
+	    flex-direction: column;
+	    width: 200px;
+	    margin: auto;
+	    padding: 35px;
+	    background-color: #000000;
+	}
+
+	html {
+	    height: 100%;
+	    width: 100%;
+	    background-color: #000000;
+	}
+
+	.title {
+	    margin-bottom: 20px;
+	}
+	</style>
+    </head>
+    <body>
+        <div class="center-div">
+            <form action="$PORTAL_ACTION$" method="post" id="captiveForm" name="captiveForm" class="main-form">
+                <strong class="title">Continue to authenticate into WiFi</strong>                
+		<input name="redirurl" type="hidden" value="$PORTAL_REDIRURL$">
+		<input name="zone" type="hidden" value="$PORTAL_ZONE$">
+                <input type="submit" name="accept" value="Continue">
+            </form>
+        </div>
+    </body>
+</html>

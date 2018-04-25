@@ -1,0 +1,28 @@
+.center-div {
+    text-align: center;
+    position: absolute;
+    top: 25%;
+    left: 0;
+    right: 0;
+    color: #1ec503;
+}
+
+.main-form {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    margin: auto;
+    padding: 35px;
+    background-color: #000000;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    background-color: #000000;
+    background-image: url("Matrix.jpg");
+}
+
+.title {
+    margin-bottom: 20px;
+}
