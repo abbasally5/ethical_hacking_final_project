@@ -1,5 +1,3 @@
-import unittest
-
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -7,7 +5,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 def run_all_login_attempts (username, password):
-	driver = webdriver.Chrome()
+	binary = FirefoxBinary('geckodriver')
+	driver = webdriver.Firefox(firefox_binary=binary)
 	driver.implicitly_wait(5)
 	try_google(username, password, driver)
 	try_facebook(username, password, driver)
