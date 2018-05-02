@@ -1,6 +1,5 @@
 import os
 import subprocess
-import interface
 
 def create_hostapd_conf(interface, ssid, channel, pswd):
     file = open("hostapd.conf","w")
@@ -21,9 +20,9 @@ def create_hostapd_conf(interface, ssid, channel, pswd):
 
 def start_access_point(interface, bssid, ssid, channel, pswd):
     # change access point
-    down_inteface(interface)
+    subprocess.call("ifconfig " + interface + " down", shell=True)
     subprocess.call("macchanger --mac " + bssid + " " + interface, shell=True)
-    up_interface(interface)
+    subprocess.call("ifconfig " + interface + " up", shell=True)
 
     #start hostapd
     create_hostapd_conf(interface, ssid, channel, pswd)
