@@ -4,9 +4,9 @@ import interface
 
 def create_hostapd_conf(interface, ssid, channel, pswd):
     file = open("hostapd.conf","w")
-    file.write("interface=" + interface) 
-    file.write("driver=nl80211") 
-    file.write("ssid=" + ssid) 
+    file.write("interface=" + interface)
+    file.write("driver=nl80211")
+    file.write("ssid=" + ssid)
     file.write("hw_mode=g")
     file.write("channel=" + channel)
     file.write("macaddr_acl=0")
@@ -29,3 +29,7 @@ def start_access_point(interface, bssid, ssid, channel, pswd):
     create_hostapd_conf(interface, ssid, channel, pswd)
     subprocess.call("hostapd hostapd.conf", shell=True)
 
+
+if __name__ == "__main__":
+
+    start_access_point("wlan0mon", "98:F1:70:09:FE:71", "testnetwork", "6", "poppoppop")
