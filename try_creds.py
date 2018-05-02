@@ -5,8 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 def run_all_login_attempts (username, password):
-	binary = FirefoxBinary('geckodriver')
-	driver = webdriver.Firefox(firefox_binary=binary)
+	driver = webdriver.Firefox()
 	driver.implicitly_wait(5)
 	try_google(username, password, driver)
 	try_facebook(username, password, driver)
@@ -22,7 +21,7 @@ def try_google(username, password, driver):
 	login_field.send_keys(username)
 	next = driver.find_element_by_id("identifierNext")
 	next.click()
-	element = WebDriverWait(driver, 3).until(EC.visibility_of_element_located((By.NAME, "password")))
+	element = WebDriverWait(driver, 3).until(EC.element_to_be_clickable((By.NAME, "password")))
 	pswd_field = driver.find_element_by_name("password")
 	pswd_field.click()
 	pswd_field.send_keys(password)
@@ -44,8 +43,7 @@ def try_facebook(username, password, driver):
 	pswd_field = driver.find_element_by_name("pass")
 	pswd_field.click()
 	pswd_field.send_keys(password)
-	next = driver.find_element_by_id("u_0_x")
-	next.click()
+	pswd_field.send_keys(Keys.RETURN)
 
 	try:
 		status = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.LINK_TEXT, "Sign up for Facebook")))
